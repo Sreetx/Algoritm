@@ -1,7 +1,26 @@
+# main.py
+#
+# Copyright 2024 Programmer
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
 try:
     try:
         import sys, os, time, datetime, random, string
         import threading
+        import datetime
         from color.warna import orange
         from color.warna import putih
         from color.warna import merah
@@ -31,7 +50,7 @@ try:
 <+========================================================+>
  |"""+reset+hijau+""" Creator:   """+putih+""" Sreetx  """+borange+"""                                   |
  |"""+reset+hijau+""" Language:  """+putih+""" Python3  """+borange+"""                                  |
- |"""+reset+hijau+""" Version:   """+putih+""" 1.0.1  """+borange+"""                                    |
+ |"""+reset+hijau+""" Version:   """+putih+""" 1.0.2  """+borange+"""                                    |
  |"""+reset+hijau+""" Github:   """+putih+"""  https://github.com/Sreetx   """+borange+"""               |
  |"""+reset+hijau+""" YouTube: """+putih+"""   https://www.youtube.com/@linggachannel4781 """+borange+"""|
  >========================================================<"""+reset+bputih+"""
@@ -75,25 +94,29 @@ try:
             return ''.join(random.choice(abjad) for _ in range(int(panjang)))
         words_per_thread = int(total)
         def thread_task():
-            with open("hasil_word/"+file_name, 'w') as f:
+            with open("hasil_word/"+file_name, 'ab') as f:
                 for j in range(words_per_thread):
+                    date = datetime.datetime.now()
+                    timestamp = date.strftime("%H%:%M%:%S")
                     word = generate_random_word()
-                    f.write(word+"\n")
-                    print(kelabu+"\r ["+banorange+"#"+reset+kelabu+"]"+hijau+" Generating "+str(file_name)+": "+banhijau, j + 1, "/", words_per_thread, reset+" words", end='')
+                    with file_lock:
+                        f.write(word.encode("utf-8"))
+                    print(kelabu+"\r ["+banorange+timestamp+reset+kelabu+"]"+hijau+" Generating "+str(file_name)+": "+banhijau, j + 1, "/", words_per_thread, reset, end='')
                     sys.stdout.flush()
             print(putih+"\n ["+banorange+"*"+reset+putih+"] DONE!!"+reset)
         
         extra_words = int(total) % int(th)
+        file_lock = threading.Lock()
         threads = []
         for i in range(int(th)):
             word_count = words_per_thread + (1 if i < extra_words else 0)
             t = threading.Thread(target=lambda wc=panjang: thread_task())
-        threads.append(t)
-        t.start()
+            threads.append(t)
+            t.start()
 
         for t in threads:
             t.join()
-        print(kelabu+" ["+banhijau+"DONE"+reset+kelabu+"]"+putih+" File disimpan pada folder 'hasil_word/"+file_name+"'\n"+reset)
+        print(kelabu+" ["+banhijau+"DONE"+reset+kelabu+"]"+putih+" File disimpan pada folder 'hasil_word/"+file_name+reset+"'\n")
 
     except (KeyboardInterrupt, EOFError): print(reset+kelabu+"\n ["+banhijau+"*"+reset+kelabu+"] "+putih+"File telah dibuat! File disimpan dengan nama "+hijau+file_name+reset+putih+" pada folder hasil_word"+reset);sys.exit()
 except (KeyboardInterrupt, EOFError): print(merah+"\n [*] EXIT!!"+reset);sys.exit()
